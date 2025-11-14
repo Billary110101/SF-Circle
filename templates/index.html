@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="8db58db5111fbca66c26fb6b1c2dd2687e7c880d" content="8db58db5111fbca66c26fb6b1c2dd2687e7c880d" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta name="description" content="SixFinger Draw A Perfect Shape — fareyle veya dokunarak şekilleri en doğru biçimde çizmeye çalış. Daire, kare ve üçgen çiz, puanını yükselt, liderlik tablosuna gir!">
+    <meta name="google-site-verification" content="Tu6owMVMo2rL4D8zWS7oSTbbBbDnkAyTcXM6uruD7xY" />
+    <title>SixFinger [] Draw A Perfect Shape</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            overflow: hidden;
+            transition: background 0.5s ease;
+        }
+        canvas {
+            border: 2px solid #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .theme-dark {
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+        }
+        .theme-light {
+            background: linear-gradient(135deg, #e2e8f0, #edf2f7);
+        }
+        .theme-neon {
+            background: linear-gradient(135deg, #ff00cc, #3333ff);
+        }
+        #leaderboard-circle, #leaderboard-square, #leaderboard-triangle {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .shape-selector {
+            display: flex;
+            gap: 1rem;
+            background: #2d3748;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .shape-option {
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .shape-option.selected {
+            background: #48bb78;
+            color: white;
+        }
+        .shape-option:not(.selected) {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+        .shape-option:hover:not(.selected) {
+            background: #718096;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen text-white theme-dark">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-3xl md:text-5xl font-extrabold mb-4 tracking-wide text-green-400 drop-shadow-lg animate-pulse">
+            SixFinger Draw A Perfect Shape
+        </h1>
+        <div class="flex flex-col md:flex-row gap-6 items-center justify-center">
+            <div class="flex flex-col items-center">
+                <div class="shape-selector mb-4">
+                    <div class="shape-option" data-shape="circle">Circle</div>
+                    <div class="shape-option selected" data-shape="square">Square</div>
+                    <div class="shape-option" data-shape="triangle">Triangle</div>
+                </div>
+                <input type="text" id="username" placeholder="Enter your name" class="mb-4 p-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-400" maxlength="12">
+                <canvas id="canvas" width="400" height="400" class="bg-gray-900"></canvas>
+                <div class="mt-4 text-xl font-semibold">
+                    Score: <span id="score">100%</span>
+                </div>
+                <div class="mt-2 text-lg font-medium text-gray-300">
+                    Best Score: <span id="bestScore">0%</span>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button id="themeToggle" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Toggle Theme</button>
+                    <button id="resetLeaderboard" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Reset Leaderboards</button>
+                </div>
+            </div>
+            <div class="w-full md:w-1/3 bg-gray-800 p-4 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold mb-2">Circle Leaderboard</h2>
+                <ul id="leaderboard-circle" class="text-left"></ul>
+                <h2 class="text-2xl font-bold mt-4 mb-2">Square Leaderboard</h2>
+                <ul id="leaderboard-square" class="text-left"></ul>
+                <h2 class="text-2xl font-bold mt-4 mb-2">Triangle Leaderboard</h2>
+                <ul id="leaderboard-triangle" class="text-left"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const bestScoreDisplay = document.getElementById('bestScore');
+        const usernameInput = document.getElementById('username');
+        const leaderboardCircle = document.getElementById('leaderboard-circle');
+        const leaderboardSquare = document.getElementById('leaderboard-square');
+        const leaderboardTriangle = document.getElementById('leaderboard-triangle');
+        const themeToggle = document.getElementById('themeToggle');
+        const resetLeaderboard = document.getElementById('resetLeaderboard');
+        const shapeOptions = document.querySelectorAll('.shape-option');
+        let drawing = false;
+        let points = [];
+        let score = 100;
+        let bestScore = localStorage.getItem('bestScore') ? parseFloat(localStorage.getItem('bestScore')) : 0;
+        let leaderboards = { circle: [], square: [], triangle: [] };
+        let themes = ['theme-dark', 'theme-light', 'theme-neon'];
+        let currentTheme = 0;
+        let selectedShape = 'square';
+        const RESET_PASSWORD = 'enesixfinger';
+
+        const drawSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
+        const completeSound = new Audio('https://www.soundjay.com/buttons/click-01a.mp3');
+
+        bestScoreDisplay.textContent = `${bestScore.toFixed(2)}%`;
+
+        // Migrate existing local leaderboard to server
+        (async function migrateLeaderboard() {
+            const localLeaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            if (localLeaderboard.length > 0) {
+                await updateServerLeaderboard(localLeaderboard, 'circle');
+                localStorage.removeItem('leaderboard');
+            }
+            await loadLeaderboards();
+        })();
+
+        // Load leaderboards from server
+        async function loadLeaderboards() {
+            try {
+                const response = await fetch('/leaderboard.json');
+                leaderboards = await response.json();
+                updateLeaderboardDisplay();
+            } catch (e) {
+                console.error('Error loading leaderboards:', e);
+                leaderboards = { circle: [], square: [], triangle: [] };
+                updateLeaderboardDisplay();
+            }
+        }
+
+        // Update server leaderboard
+        async function updateServerLeaderboard(newEntry, shape) {
+            if (newEntry) {
+                const targetLeaderboard = leaderboards[shape];
+                const existingIndex = targetLeaderboard.findIndex(entry => entry.name === newEntry.name);
+                if (existingIndex !== -1) {
+                    if (newEntry.score > targetLeaderboard[existingIndex].score) {
+                        targetLeaderboard[existingIndex] = newEntry;
+                    }
+                } else {
+                    targetLeaderboard.push(newEntry);
+                }
+                targetLeaderboard.sort((a, b) => b.score - a.score);
+                leaderboards[shape] = targetLeaderboard.slice(0, 5);
+                try {
+                    await fetch('/leaderboard.json', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(leaderboards)
+                    });
+                    updateLeaderboardDisplay();
+                } catch (e) {
+                    console.error('Error updating leaderboard:', e);
+                }
+            } else {
+                updateLeaderboardDisplay();
+            }
+        }
+
+        function updateLeaderboardDisplay() {
+            leaderboardCircle.innerHTML = leaderboards.circle.map((entry, i) => {
+                const nameDisplay = entry.name === 'Kawazaki'
+                    ? `<a href="https://www.youtube.com/watch?v=9jek05ibsPw" target="_blank" class="text-blue-400 hover:underline">${entry.name}</a>`
+                    : entry.name || 'İsmini girmek istemeyen arkadaş';
+                return `<li class="py-1">${i + 1}. ${nameDisplay}: ${entry.score.toFixed(2)}%</li>`;
+            }).join('');
+            leaderboardSquare.innerHTML = leaderboards.square.map((entry, i) => {
+                const nameDisplay = entry.name === 'Kawazaki'
+                    ? `<a href="https://www.youtube.com/watch?v=9jek05ibsPw" target="_blank" class="text-blue-400 hover:underline">${entry.name}</a>`
+                    : entry.name || 'İsmini girmek istemeyen arkadaş';
+                return `<li class="py-1">${i + 1}. ${nameDisplay}: ${entry.score.toFixed(2)}%</li>`;
+            }).join('');
+            leaderboardTriangle.innerHTML = leaderboards.triangle.map((entry, i) => {
+                const nameDisplay = entry.name === 'Kawazaki'
+                    ? `<a href="https://www.youtube.com/watch?v=9jek05ibsPw" target="_blank" class="text-blue-400 hover:underline">${entry.name}</a>`
+                    : entry.name || 'İsmini girmek istemeyen arkadaş';
+                return `<li class="py-1">${i + 1}. ${nameDisplay}: ${entry.score.toFixed(2)}%</li>`;
+            }).join('');
+        }
+
+        // Shape selector
+        shapeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                shapeOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedShape = option.dataset.shape;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                score = 100;
+                scoreDisplay.textContent = `${score.toFixed(2)}%`;
+            });
+        });
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.remove(themes[currentTheme]);
+            currentTheme = (currentTheme + 1) % themes.length;
+            document.body.classList.add(themes[currentTheme]);
+        });
+
+        // Reset leaderboards with password
+        resetLeaderboard.addEventListener('click', async () => {
+            const password = prompt('Enter password to reset leaderboards:');
+            if (password === RESET_PASSWORD) {
+                if (confirm('Reset atılcak?')) {
+                    leaderboards = { circle: [], square: [], triangle: [] };
+                    try {
+                        await fetch('/leaderboard.json', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(leaderboards)
+                        });
+                        updateLeaderboardDisplay();
+                    } catch (e) {
+                        console.error('Error resetting leaderboards:', e);
+                    }
+                }
+            } else {
+                alert('Incorrect password. Leaderboards were not reset.');
+            }
+        });
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startDrawing({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+        });
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            draw({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+        });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function startDrawing(e) {
+            drawing = true;
+            points = [];
+            score = 100;
+            scoreDisplay.textContent = `${score.toFixed(2)}%`;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            draw(e);
+            drawSound.play();
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            points.push({ x, y });
+
+            if (points.length > 10) {
+                calculateScore();
+            }
+
+            ctx.beginPath();
+            ctx.strokeStyle = `hsl(${score * 1.2}, 70%, 50%)`;
+            ctx.lineWidth = 3;
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            if (drawing) {
+                drawing = false;
+                if (points.length > 10) {
+                    calculateScore();
+                    completeSound.play();
+                    const username = usernameInput.value.trim() || 'İsmini girmek istemeyen arkadaş';
+                    if (score > 0) {
+                        updateServerLeaderboard({ name: username, score }, selectedShape);
+                    }
+                    if (score > bestScore) {
+                        bestScore = score;
+                        localStorage.setItem('bestScore', bestScore);
+                        bestScoreDisplay.textContent = `${bestScore.toFixed(2)}%`;
+                    }
+                } else {
+                    score = 0;
+                    scoreDisplay.textContent = `0%`;
+                }
+                ctx.closePath();
+            }
+        }
+
+        function calculateScore() {
+            if (points.length < 10) return;
+
+            if (selectedShape === 'circle') {
+    let sumX = 0, sumY = 0;
+    points.forEach(p => {
+        sumX += p.x;
+        sumY += p.y;
+    });
+    const centerX = sumX / points.length;
+    const centerY = sumY / points.length;
+
+    const distances = points.map(p => Math.sqrt((p.x - centerX) ** 2 + (p.y - centerY) ** 2));
+
+    const avgRadius = distances.reduce((a, b) => a + b, 0) / distances.length;
+
+    const variance = distances.reduce((a, d) => a + (d - avgRadius) ** 2, 0) / distances.length;
+    const stdDeviation = Math.sqrt(variance);
+
+    const uniformity = Math.max(0, 100 - (stdDeviation / avgRadius) * 200);
+
+    const start = points[0];
+    const end = points[points.length - 1];
+    const closureError = Math.sqrt((start.x - end.x) ** 2 + (start.y - end.y) ** 2);
+
+    score = uniformity - (closureError / avgRadius) * 30;
+
+    score = Math.min(100, score + 5);
+    score = Math.max(0, score);
+}
+              else if (selectedShape === 'square') {
+    if (points.length < 4) {
+        score = 0;
+    } else {
+        const step = Math.floor(points.length / 4);
+        const corners = [
+            points[0],
+            points[step],
+            points[step * 2],
+            points[step * 3],
+        ];
+
+        const sideLengths = [];
+        for (let i = 0; i < 4; i++) {
+            const p1 = corners[i];
+            const p2 = corners[(i + 1) % 4];
+            const len = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+            sideLengths.push(len);
+        }
+
+        const angles = [];
+        for (let i = 0; i < 4; i++) {
+            const a = corners[(i + 3) % 4];
+            const b = corners[i];
+            const c = corners[(i + 1) % 4];
+
+            const ab = { x: a.x - b.x, y: a.y - b.y };
+            const cb = { x: c.x - b.x, y: c.y - b.y };
+
+            const dot = ab.x * cb.x + ab.y * cb.y;
+            const magA = Math.sqrt(ab.x ** 2 + ab.y ** 2);
+            const magC = Math.sqrt(cb.x ** 2 + cb.y ** 2);
+
+            const cosAngle = dot / (magA * magC);
+            const angle = Math.acos(Math.min(Math.max(cosAngle, -1), 1)) * (180 / Math.PI);
+            angles.push(angle);
+        }
+
+        const avgLength = sideLengths.reduce((a, b) => a + b, 0) / 4;
+        const sideDeviation = Math.sqrt(sideLengths.reduce((a, l) => a + (l - avgLength) ** 2, 0) / 4);
+
+        const angleDeviation = Math.sqrt(angles.reduce((a, ang) => a + (ang - 90) ** 2, 0) / 4);
+
+        score = 100 - (sideDeviation / avgLength) * 200 - angleDeviation;
+        score = Math.max(0, Math.min(100, score));
+    }
+}
+ else if (selectedShape === 'triangle') {
+    if (points.length < 3) {
+        score = 0;
+    } else {
+        const step = Math.floor(points.length / 3);
+        const corners = [
+            points[0],
+            points[step],
+            points[step * 2],
+        ];
+
+        const sideLengths = [];
+        for (let i = 0; i < 3; i++) {
+            const p1 = corners[i];
+            const p2 = corners[(i + 1) % 3];
+            const len = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+            sideLengths.push(len);
+        }
+
+        const angles = [];
+        for (let i = 0; i < 3; i++) {
+            const a = corners[(i + 2) % 3];
+            const b = corners[i];
+            const c = corners[(i + 1) % 3];
+
+            const ab = { x: a.x - b.x, y: a.y - b.y };
+            const cb = { x: c.x - b.x, y: c.y - b.y };
+
+            const dot = ab.x * cb.x + ab.y * cb.y;
+            const magA = Math.sqrt(ab.x ** 2 + ab.y ** 2);
+            const magC = Math.sqrt(cb.x ** 2 + cb.y ** 2);
+
+            const cosAngle = dot / (magA * magC);
+            const angle = Math.acos(Math.min(Math.max(cosAngle, -1), 1)) * (180 / Math.PI);
+            angles.push(angle);
+        }
+
+        const avgLength = sideLengths.reduce((a, b) => a + b, 0) / 3;
+        const sideDeviation = Math.sqrt(sideLengths.reduce((a, l) => a + (l - avgLength) ** 2, 0) / 3);
+
+
+        const angleDeviation = Math.sqrt(angles.reduce((a, ang) => a + (ang - 60) ** 2, 0) / 3);
+
+
+        score = 100 - (sideDeviation / avgLength) * 200 - angleDeviation;
+        score = Math.max(0, Math.min(100, score));
+    }
+}
+
+
+            scoreDisplay.textContent = `${score.toFixed(2)}%`;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = `hsl(${score * 1.2}, 70%, 50%)`;
+            ctx.lineWidth = 3;
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.stroke();
+        }
+    </script>
+    <script>
+(function(dpfz){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = dpfz || {};
+s.src = "\/\/tatteredpassenger.com\/bGX\/Vrsvd.Gplw0zY\/Wucw\/KeQm\/9muBZeUnlBkDPcTwY\/2-O\/TDUmyJM\/zKkSt-NijYYV5UNfTDIj0MM_Ao";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+<script>
+(function(jjxi){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = jjxi || {};
+s.src = "\/\/tatteredpassenger.com\/bTXgV.sfdCGFld0qYjW\/cZ\/Ce\/m\/9XuCZmUJlpkPPWTRY\/2DOkTSUDyINYDaMdtcN\/jwY\/5MNgTWIu0bNnAL";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+<script>
+(function(hbfpzn){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = hbfpzn || {};
+s.src = "\/\/tatteredpassenger.com\/bEX.VXs_dKGJlA0CYrWacn\/ReOmo9yuoZmUVl\/kNPvTcYo2AO-TzUyy\/NlDAYdtnNBjUYe5zNOTQID0lNKwH";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l
